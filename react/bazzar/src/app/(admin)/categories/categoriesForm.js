@@ -53,7 +53,7 @@ export default function CategoriesForm(props){
       return (
         <div>
             <>
-          <Button onPress={onOpen} color="primary" className='absolute top-1 right-5'>Add Category</Button>
+          {props.type==='Edit'?<Icon icon="icon-park:edit-two" className='absolute right-5 top-4 w-6 h-6' />:<Button onPress={onOpen} color="primary" className='absolute top-1 right-5'> Add Category </Button>}
           <Modal 
             isOpen={isOpen} 
             onOpenChange={onOpenChange}

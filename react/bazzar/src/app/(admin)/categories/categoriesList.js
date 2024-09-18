@@ -19,7 +19,7 @@ const CategoriesList = (props) => {
             />
           </CardBody>
          
-            <Icon icon="icon-park:edit-two" className='absolute right-5 top-4 w-6 h-6'   onClick={()=>{<CategoriesForm type={'Edit'} item={props.item} handleSubmit={props.handleSubmit(item)}/>}} />
+              <CategoriesForm type={'Edit'} item={props.item} handleSubmit={props.handleSubmit(item)}/>
             
             
             <Icon icon="icon-park:delete" className='absolute right-5 top-14 w-6 h-6' onClick={()=>props.handleDelete(item)} />
