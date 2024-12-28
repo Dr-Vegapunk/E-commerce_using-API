@@ -1,103 +1,95 @@
+import React from 'react';
 import { Icon } from '@iconify/react';
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react'
-import { Formik } from 'formik';
-import React from 'react'
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure, Card, CardBody } from '@nextui-org/react';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 
 const FormSchema = Yup.object().shape({
-    name: Yup.string()
-      .min(2, 'Too Short!')
-      .max(50, 'Too Long!')
-      .required('Required'),
-    image: Yup.string()
-      .min(2, 'Too Short!')
-      .required('Required'),
-  });
-  const FormInput = (props) => (
-    <div>
-  
-      <Formik
-        initialValues={props.item ? props.item : {name: '',image:''}}
-        enableReinitialize={true}
-        validationSchema={FormSchema}
-        onSubmit={values => {
-          props.handleSubmit(values, props.item.id)
-        }}
-      >
-        {({ errors, touched, handleChange,values }) => (
-              <div className="flex justify-center items-center">
-              <Card className="flex p-4">
-              <CardBody className="flex gap-2">
-          <Form className='flex flex-col '>
-            <Input name="name"  value={values.name}   className={errors.name ? ' border border-red-600 rounded-md': null} onChange={handleChange} placeholder="Enter Full Name"/>
-            {errors.name && touched.name ? (
-              <div className='text-red-900 text-sm'>{errors.name}</div>
-            ) : null}
-         
-            <Input name="image" value={values.image}  onChange={handleChange}  placeholder='enter image'/>
-            {errors.image && touched.image ? <div>{errors.image}</div> : null}
-       
-          <Button className='bg-[#3C5C7D] text-white' type="submit">Save</Button>
-          </Form>
-          </CardBody>
-          </Card>
-          </div>
-        )}
-      </Formik>
-    </div>
+  name: Yup.string()
+    .min(2, 'Too Short!')
+    .max(50, 'Too Long!')
+    .required('Required'),
+  image: Yup.string()
+    .url('Must be a valid URL')
+    .required('Required'),
+});
+
+const CategoriesForm = ({ type, item, handleSubmit }) => {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const initialValues = item || { name: '', image: '' };
+
+  const onSubmit = (values, { resetForm }) => {
+    handleSubmit(values);
+    if (type === 'Add') {
+      resetForm();
+      onOpenChange(false);
+    }
+  };
+
+  const FormContent = ({ errors, touched, handleChange, values }) => (
+    <Form className='flex flex-col gap-4'>
+      <Input
+        name="name"
+        value={values.name}
+        onChange={handleChange}
+        placeholder="Enter Full Name"
+        isInvalid={errors.name && touched.name}
+        errorMessage={errors.name && touched.name ? errors.name : null}
+      />
+      <Input
+        name="image"
+        value={values.image}
+        onChange={handleChange}
+        placeholder='Enter image URL'
+        isInvalid={errors.image && touched.image}
+        errorMessage={errors.image && touched.image ? errors.image : null}
+      />
+      <Button color="primary" type="submit">
+        {type === 'Edit' ? 'Update' : 'Add'} Category
+      </Button>
+    </Form>
   );
 
-
-export default function CategoriesForm(props){
-        const {isOpen, onOpen, onOpenChange} = useDisclosure();
-      return (
-        <div>
+  return (
+    <div>
+      {type === 'Edit' ? (
+        <Icon 
+          icon="icon-park:edit-two" 
+          className='absolute right-5 top-4 w-6 h-6 cursor-pointer' 
+          onClick={onOpen}
+        />
+      ) : (
+        <Button onPress={onOpen} color="primary">
+          Add Category
+        </Button>
+      )}
+      <Modal 
+        isOpen={isOpen} 
+        onOpenChange={onOpenChange}
+        placement="top-center"
+      >
+        <ModalContent>
+          {(onClose) => (
             <>
-          {props.type==='Edit'?<Icon icon="icon-park:edit-two" className='absolute right-5 top-4 w-6 h-6' />:<Button onPress={onOpen} color="primary" className='absolute top-1 right-5'> Add Category </Button>}
-          <Modal 
-            isOpen={isOpen} 
-            onOpenChange={onOpenChange}
-            placement="top-center"
-          >
-            <ModalContent>
-              {(onClose) => (
-                <>
-                  <ModalHeader className="flex flex-col gap-1">Add a category</ModalHeader>
-                  <ModalBody>
-                    <Input
-                      autoFocus
-                      endContent={
-                        <Icon icon="carbon:category-add" className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                      }
-                      label="name"
-                      placeholder="Enter category name"
-                      variant="bordered"
-                    />
-                    <Input
-                      endContent={
-                        <Icon icon="catppuccin:image" className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                      }
-                      label="image"
-                      placeholder="Enter category image url"
-                      variant="bordered"
-                    />
-                    
-                  </ModalBody>
-                  <ModalFooter >
-                    <Button color="danger" variant="flat" onPress={onClose}  >
-                      Add Category
-                    </Button>
-    
-                  </ModalFooter>
-                </>
-              )}
-            </ModalContent>
-          </Modal>
-        </>
-      );
-    
-    
-        </div>
-      )
-    }
-    
+              <ModalHeader className="flex flex-col gap-1">
+                {type === 'Edit' ? 'Edit' : 'Add'} Category
+              </ModalHeader>
+              <ModalBody>
+                <Formik
+                  initialValues={initialValues}
+                  validationSchema={FormSchema}
+                  onSubmit={onSubmit}
+                >
+                  {(formikProps) => <FormContent {...formikProps} />}
+                </Formik>
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </div>
+  );
+};
+
+export default CategoriesForm;
